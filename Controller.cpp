@@ -65,30 +65,13 @@ void Controller::render(float ifps)
 
     if (mUpdateCamera)
     {
-        //        auto rotation = mCamera->rotation();
-        //        rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), mMouse.dx * ifps * (mDistance - 10)) * rotation;
-        //        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), mMouse.dy * ifps * (mDistance - 10));
-
-        //        auto position = rotation * QVector3D(0, 0, mDistance);
-
-        //        mCamera->setRotation(rotation);
-        //        mCamera->setPosition(position);
-
-        //        mMouse.dx = 0.0f;
-        //        mMouse.dy = 0.0f;
-        //        mMouse.dz = 0.0f;
-        //        mUpdateCamera = false;
-
-        mRoll += (mDistance - 10) * mMouse.dz * ifps;
-        mHeading += (mDistance - 10) * mMouse.dx * ifps;
-        mTilt += (mDistance - 10) * mMouse.dy * ifps;
-
-        auto rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), mRoll);
-
-        rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), mHeading);
-        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), mTilt);
+        auto rotation = mCamera->rotation();
+        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), mMouse.dz * ifps * qMax(2.0f, mDistance - 10));
+        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), mMouse.dx * ifps * (mDistance - 10));
+        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), mMouse.dy * ifps * (mDistance - 10));
 
         auto position = rotation * QVector3D(0, 0, mDistance);
+
         mCamera->setRotation(rotation);
         mCamera->setPosition(position);
 
@@ -96,6 +79,24 @@ void Controller::render(float ifps)
         mMouse.dy = 0.0f;
         mMouse.dz = 0.0f;
         mUpdateCamera = false;
+
+        //        mRoll += (mDistance - 10) * mMouse.dz * ifps;
+        //        mHeading += (mDistance - 10) * mMouse.dx * ifps;
+        //        mTilt += (mDistance - 10) * mMouse.dy * ifps;
+
+        //        auto rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), mRoll);
+
+        //        rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), mHeading);
+        //        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), mTilt);
+
+        //        auto position = rotation * QVector3D(0, 0, mDistance);
+        //        mCamera->setRotation(rotation);
+        //        mCamera->setPosition(position);
+
+        //        mMouse.dx = 0.0f;
+        //        mMouse.dy = 0.0f;
+        //        mMouse.dz = 0.0f;
+        //        mUpdateCamera = false;
     }
 
     //    if (mUpdateCameraRotation)
@@ -137,10 +138,10 @@ void Controller::wheelMoved(QWheelEvent *event)
         return;
 
     if (event->angleDelta().y() < 0)
-        mDistance = 1.05 * mDistance;
+        mDistance = 1.015 * mDistance;
 
     if (event->angleDelta().y() > 0)
-        mDistance = mDistance / 1.05;
+        mDistance = mDistance / 1.015;
 
     mDistance = qBound(10.0f + 2 * mCamera->zNear(), mDistance, 1000.0f);
 
