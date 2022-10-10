@@ -67,18 +67,13 @@ void Camera::setZFar(float newZFar)
     mZFar = newZFar;
 }
 
-QMatrix4x4 Camera::transformation() const
-{
-    QMatrix4x4 result;
-    result.rotate(mRotation.conjugated());
-    result.translate(-mPosition);
-
-    return result;
-}
-
 QMatrix4x4 Camera::getVP()
 {
-    return projection() * transformation();
+    QMatrix4x4 view;
+    view.rotate(mRotation.conjugated());
+    view.translate(-mPosition);
+
+    return projection() * view;
 }
 
 void Camera::resize(int width, int height)

@@ -18,7 +18,6 @@ signals:
     void activeChanged(bool active);
 
 public:
-    virtual QMatrix4x4 transformation() const override;
     virtual QMatrix4x4 getVP();
     virtual QMatrix4x4 projection() = 0;
 

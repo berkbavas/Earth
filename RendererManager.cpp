@@ -86,30 +86,44 @@ void RendererManager::mouseReleased(QMouseEvent *event)
 
 void RendererManager::mouseMoved(QMouseEvent *event)
 {
-    mMousePositionFBO->bind();
-
-    glReadPixels(event->position().x(), mMousePositionFBO->height() - event->position().y(), 1, 1, GL_RGBA, GL_FLOAT, &mMouseWorldPosition);
-
-    mMousePositionFBO->release();
+    //    mMousePositionFBO->bind();
+    //    glReadPixels(event->position().x(), mMousePositionFBO->height() - event->position().y(), 1, 1, GL_RGBA, GL_FLOAT, &mMouseWorldPosition);
+    //    mMousePositionFBO->release();
 }
 
-void RendererManager::render(float ifps)
+QVector4D RendererManager::pixelToLatLon(float x, float y)
 {
+    QVector4D result;
     mMousePositionFBO->bind();
-    glEnable(GL_DEPTH_TEST);
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     mShaderManager->bind(ShaderManager::ShaderType::EarthMousePositionShader);
     mShaderManager->setUniformValue("MVP", mCamera->getVP() * mEarth->transformation());
     mModelsData.value("Earth")->render();
+    glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &result);
     mShaderManager->release();
+    mMousePositionFBO->release();
+
+    return result;
+}
+
+void RendererManager::render(float ifps)
+{
+    //    mMousePositionFBO->bind();
+    //    glEnable(GL_DEPTH_TEST);
+    //    glClearColor(0, 0, 0, 0);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //    mShaderManager->bind(ShaderManager::ShaderType::EarthMousePositionShader);
+    //    mShaderManager->setUniformValue("MVP", mCamera->getVP() * mEarth->transformation());
+    //    mModelsData.value("Earth")->render();
+    //    mShaderManager->release();
 
     QOpenGLFramebufferObject::bindDefault();
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     mShaderManager->bind(ShaderManager::ShaderType::EarthShader);
     mShaderManager->setUniformValue("earth.transformation", mEarth->transformation());
-    mShaderManager->setUniformValue("earth.normalMatrix", mEarth->normalMatrix());
+    mShaderManager->setUniformValue("earth.normalMatrix", mEarth->transformation().normalMatrix());
     mShaderManager->setUniformValue("earth.ambient", mEarth->ambient());
     mShaderManager->setUniformValue("earth.diffuse", mEarth->diffuse());
     mShaderManager->setUniformValue("earth.specular", mEarth->specular());

@@ -23,13 +23,14 @@ public:
         DummyCamera,
     };
 
-    virtual QMatrix4x4 transformation() const;
-
-    virtual const QVector3D &position() const;
-    virtual void setPosition(const QVector3D &newPosition);
+    virtual const QMatrix4x4 &transformation() const;
+    virtual void setTransformation(const QMatrix4x4 &newTransformation);
 
     virtual const QQuaternion &rotation() const;
     virtual void setRotation(const QQuaternion &newRotation);
+
+    virtual const QVector3D &position() const;
+    virtual void setPosition(const QVector3D &newPosition);
 
     virtual const QVector3D &scale() const;
     virtual void setScale(const QVector3D &newScale);
@@ -43,12 +44,15 @@ public:
     bool visible() const;
     void setVisible(bool newVisible);
 
-    virtual QMatrix3x3 normalMatrix() const;
     virtual void drawGUI();
 
+private:
+    virtual void updateTransformation();
+
 protected:
-    QVector3D mPosition;
+    QMatrix4x4 mTransformation;
     QQuaternion mRotation;
+    QVector3D mPosition;
     QVector3D mScale;
     QString mName;
     NodeType mNodeType;

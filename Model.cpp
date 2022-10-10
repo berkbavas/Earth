@@ -16,17 +16,17 @@ Model::~Model() {}
 
 void Model::drawGUI()
 {
-    Node::drawGUI();
-
     // Shading Parameters
-    if (!ImGui::CollapsingHeader("Shading Parameters##Model"))
     {
+        ImGui::TextColored(ImVec4(1, 1, 0, 1), "Shading Parameters:");
         ImGui::SliderFloat("Ambient##Model", &mAmbient, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("Diffuse##Model", &mDiffuse, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("Specular##Model", &mSpecular, 0.0f, 1.0f, "%.3f");
         ImGui::SliderFloat("Shininess##Model", &mShininess, 1.0f, 128.0f, "%.3f");
         ImGui::ColorEdit4("Color##Model", (float *) &mColor);
     }
+
+    Node::drawGUI();
 }
 
 const QVector4D &Model::color() const

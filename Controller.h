@@ -52,13 +52,19 @@ private:
         float x;
         float y;
         float z;
+        float w;
         float dx;
         float dy;
         float dz;
+        float dw;
     } mMouse;
 
-    bool mUpdateRotation;
-    float mZoom;
+    bool mUpdateCamera;
+    float mDistance;
+
+    float mRoll;
+    float mHeading;
+    float mTilt;
 };
 
 #endif // CONTROLLER_H
