@@ -18,7 +18,7 @@ void ModelData::create()
     mVBO.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
     mVBO.allocate(mVertices.constData(), sizeof(Vertex) * mVertices.size());
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) 0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) 0);
     glEnableVertexAttribArray(0);
 
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));

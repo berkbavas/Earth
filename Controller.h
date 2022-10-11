@@ -2,7 +2,6 @@
 #define CONTROLLER_H
 
 #include "DummyCamera.h"
-#include "FreeCamera.h"
 #include "RendererManager.h"
 
 #include <QObject>
@@ -47,23 +46,19 @@ private:
 
     bool mSuccess;
 
-    struct Mouse {
-        Qt::MouseButton pressedButton;
-        float x;
-        float y;
-        float z;
-        float w;
-        float dx;
-        float dy;
-        float dz;
-        float dw;
-    } mMouse;
+    Qt::MouseButton mPressedButton;
 
-    bool mUpdateCamera;
+    float mX;
+    float mY;
+    float mZ;
+    float mW;
+    float mDx;
+    float mDy;
+    float mDz;
+    float mDw;
+
+    bool mUpdate;
     float mDistance;
-
-    float mRoll;
-    float mHeading;
     float mTilt;
 };
 

@@ -34,8 +34,6 @@ public:
     void mouseReleased(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);
 
-    QVector4D pixelToLatLon(float x, float y);
-
 private:
     QMap<QString, ModelData *> mModelsData;
 
@@ -43,6 +41,7 @@ private:
     Camera *mCamera;
     Sun *mSun;
     Earth *mEarth;
+    QOpenGLTexture *mEarthTexture;
 
     int mWidth;
     int mHeight;

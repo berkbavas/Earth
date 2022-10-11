@@ -18,7 +18,6 @@ public:
 
     enum class ShaderType { //
         None,
-        ModelShader,
         EarthShader,
         EarthMousePositionShader,
     };

@@ -2,6 +2,7 @@
 #include "Helper.h"
 
 #include <QDir>
+#include <QImageReader>
 #include <QtMath>
 
 RendererManager::RendererManager(QObject *parent)
@@ -54,6 +55,17 @@ bool RendererManager::init()
 
     mMousePositionFBO = new QOpenGLFramebufferObject(mWidth, mHeight, mMousePositionFBOFormat);
 
+    int limit = QImageReader::allocationLimit();
+    QImageReader::setAllocationLimit(0);
+
+    QImage image("Resources/Textures/world.topo.bathy.200411.3x21600x10800.jpg");
+    image.mirror();
+    mEarthTexture = new QOpenGLTexture(image);
+    mEarthTexture->setWrapMode(QOpenGLTexture::WrapMode::Repeat);
+    mEarthTexture->setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::Linear);
+
+    QImageReader::setAllocationLimit(limit);
+
     return true;
 }
 
@@ -86,60 +98,43 @@ void RendererManager::mouseReleased(QMouseEvent *event)
 
 void RendererManager::mouseMoved(QMouseEvent *event)
 {
-    //    mMousePositionFBO->bind();
-    //    glReadPixels(event->position().x(), mMousePositionFBO->height() - event->position().y(), 1, 1, GL_RGBA, GL_FLOAT, &mMouseWorldPosition);
-    //    mMousePositionFBO->release();
+    mMousePositionFBO->bind();
+    glReadPixels(event->position().x(), mMousePositionFBO->height() - event->position().y(), 1, 1, GL_RGBA, GL_FLOAT, &mMouseWorldPosition);
+    mMousePositionFBO->release();
 }
 
-QVector4D RendererManager::pixelToLatLon(float x, float y)
+void RendererManager::render(float ifps)
 {
-    QVector4D result;
     mMousePositionFBO->bind();
+    glEnable(GL_DEPTH_TEST);
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     mShaderManager->bind(ShaderManager::ShaderType::EarthMousePositionShader);
     mShaderManager->setUniformValue("MVP", mCamera->getVP() * mEarth->transformation());
     mModelsData.value("Earth")->render();
-    glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &result);
     mShaderManager->release();
-    mMousePositionFBO->release();
-
-    return result;
-}
-
-void RendererManager::render(float ifps)
-{
-    //    mMousePositionFBO->bind();
-    //    glEnable(GL_DEPTH_TEST);
-    //    glClearColor(0, 0, 0, 0);
-    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //    mShaderManager->bind(ShaderManager::ShaderType::EarthMousePositionShader);
-    //    mShaderManager->setUniformValue("MVP", mCamera->getVP() * mEarth->transformation());
-    //    mModelsData.value("Earth")->render();
-    //    mShaderManager->release();
 
     QOpenGLFramebufferObject::bindDefault();
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     mShaderManager->bind(ShaderManager::ShaderType::EarthShader);
-    mShaderManager->setUniformValue("earth.transformation", mEarth->transformation());
-    mShaderManager->setUniformValue("earth.normalMatrix", mEarth->transformation().normalMatrix());
-    mShaderManager->setUniformValue("earth.ambient", mEarth->ambient());
-    mShaderManager->setUniformValue("earth.diffuse", mEarth->diffuse());
-    mShaderManager->setUniformValue("earth.specular", mEarth->specular());
-    mShaderManager->setUniformValue("earth.shininess", mEarth->shininess());
+    mShaderManager->setUniformValue("M", mEarth->transformation());
+    mShaderManager->setUniformValue("N", mEarth->transformation().normalMatrix());
     mShaderManager->setUniformValue("VP", mCamera->getVP());
-    mShaderManager->setUniformValue("cameraPosition", mCamera->position());
-    mShaderManager->setUniformValue("sun.direction", mSun->direction());
-    mShaderManager->setUniformValue("sun.color", mSun->color());
-    mShaderManager->setUniformValue("sun.ambient", mSun->ambient());
-    mShaderManager->setUniformValue("sun.diffuse", mSun->diffuse());
-    mShaderManager->setUniformValue("sun.specular", mSun->specular());
-    mEarth->texture()->bind(0);
-    mShaderManager->setSampler("earth.color", 0, mEarth->texture()->textureId());
 
-    mEarth->heightMap()->bind(1);
-    mShaderManager->setSampler("earth.height", 1, mEarth->heightMap()->textureId());
+    mShaderManager->setUniformValue("earthAmbient", mEarth->ambient());
+    mShaderManager->setUniformValue("earthDiffuse", mEarth->diffuse());
+    mShaderManager->setUniformValue("earthSpecular", mEarth->specular());
+    mShaderManager->setUniformValue("earthShininess", mEarth->shininess());
+
+    mShaderManager->setUniformValue("cameraPosition", mCamera->position());
+    mShaderManager->setUniformValue("sunDirection", mSun->direction());
+    mShaderManager->setUniformValue("sunColor", mSun->color());
+    mShaderManager->setUniformValue("sunAmbient", mSun->ambient());
+    mShaderManager->setUniformValue("sunDiffuse", mSun->diffuse());
+    mShaderManager->setUniformValue("sunSpecular", mSun->specular());
+    mEarthTexture->bind(0);
+    mShaderManager->setSampler("earthTexture", 0, mEarthTexture->textureId());
 
     mModelsData.value("Earth")->render();
     mShaderManager->release();

@@ -191,8 +191,6 @@ QString Shader::getShaderTypeString()
 {
     switch (mType)
     {
-    case ShaderManager::ShaderType::ModelShader:
-        return "Model Shader";
     default:
         return "Unknown Shader";
     }

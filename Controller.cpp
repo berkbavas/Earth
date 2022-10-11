@@ -9,11 +9,18 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
     , mImGuiWantsMouseCapture(false)
     , mSuccess(true)
-    , mUpdateCamera(false)
-    , mDistance(40.0)
-    , mRoll(0)
-    , mHeading(0)
-    , mTilt(0)
+    , mPressedButton(Qt::NoButton)
+    , mX(0)
+    , mY(0)
+    , mZ(0)
+    , mW(0)
+    , mDx(0)
+    , mDy(0)
+    , mDz(0)
+    , mDw(0)
+    , mUpdate(false)
+    , mDistance(40.0f)
+    , mTilt(0.0f)
 {}
 
 void Controller::init()
@@ -42,18 +49,10 @@ void Controller::init()
     mCamera = new DummyCamera;
     mCamera->setPosition(QVector3D(0, 0, mDistance));
     mCamera->setVerticalFov(60.0f);
-    mCamera->setZNear(0.1f);
+    mCamera->setZNear(0.01f);
     mCamera->setZFar(100000.0f);
 
     mRendererManager->setCamera(mCamera);
-
-    mMouse.pressedButton = Qt::NoButton;
-    mMouse.dx = 0;
-    mMouse.dy = 0;
-    mMouse.dz = 0;
-    mMouse.x = 0;
-    mMouse.y = 0;
-    mMouse.z = 0;
 
     mEarth->setPosition(QVector3D(0, 0, 0));
 }
@@ -63,53 +62,36 @@ void Controller::render(float ifps)
     if (!mSuccess)
         return;
 
-    if (mUpdateCamera)
+    if (mUpdate)
     {
-        auto rotation = mCamera->rotation();
-        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), mMouse.dz * ifps * qMax(2.0f, mDistance - 10));
-        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), mMouse.dx * ifps * (mDistance - 10));
-        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), mMouse.dy * ifps * (mDistance - 10));
+        // Earth
+        {
+            auto rotation = mEarth->rotation();
+            rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), -mDz * ifps * qMax(2.0f, mDistance - 10)) * rotation;
+            rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), -mDx * ifps * (mDistance - 10)) * rotation;
+            rotation = QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), -mDy * ifps * (mDistance - 10)) * rotation;
+            mEarth->setRotation(rotation);
+        }
 
-        auto position = rotation * QVector3D(0, 0, mDistance);
+        // Camera
+        {
+            mTilt -= mDw * ifps * 30;
 
-        mCamera->setRotation(rotation);
-        mCamera->setPosition(position);
+            mTilt = qBound(0.0f, mTilt, 89.0f);
 
-        mMouse.dx = 0.0f;
-        mMouse.dy = 0.0f;
-        mMouse.dz = 0.0f;
-        mUpdateCamera = false;
+            auto rotation = QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), mTilt);
+            auto position = QVector3D(0, 0, 10) + rotation * QVector3D(0, 0, mDistance - 10);
 
-        //        mRoll += (mDistance - 10) * mMouse.dz * ifps;
-        //        mHeading += (mDistance - 10) * mMouse.dx * ifps;
-        //        mTilt += (mDistance - 10) * mMouse.dy * ifps;
+            mCamera->setRotation(rotation);
+            mCamera->setPosition(position);
+        }
 
-        //        auto rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), mRoll);
-
-        //        rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), mHeading);
-        //        rotation = rotation * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), mTilt);
-
-        //        auto position = rotation * QVector3D(0, 0, mDistance);
-        //        mCamera->setRotation(rotation);
-        //        mCamera->setPosition(position);
-
-        //        mMouse.dx = 0.0f;
-        //        mMouse.dy = 0.0f;
-        //        mMouse.dz = 0.0f;
-        //        mUpdateCamera = false;
+        mDx = 0.0f;
+        mDy = 0.0f;
+        mDz = 0.0f;
+        mDw = 0.0f;
+        mUpdate = false;
     }
-
-    //    if (mUpdateCameraRotation)
-    //    {
-    //        auto rotation = QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), -30 * mMouse.dw * ifps) * mCamera->rotation();
-    //        auto position = QVector3D(0, 0, 10) + rotation * QVector3D(0, 0, 40);
-
-    //        mCamera->setRotation(rotation);
-    //        mCamera->setPosition(position);
-
-    //        mMouse.dw = 0.0f;
-    //        mUpdateCameraRotation = false;
-    //    }
 
     mRendererManager->render(ifps);
 
@@ -145,7 +127,7 @@ void Controller::wheelMoved(QWheelEvent *event)
 
     mDistance = qBound(10.0f + 2 * mCamera->zNear(), mDistance, 1000.0f);
 
-    mUpdateCamera = true;
+    mUpdate = true;
 }
 
 void Controller::mousePressed(QMouseEvent *event)
@@ -158,21 +140,21 @@ void Controller::mousePressed(QMouseEvent *event)
 
     if (event->button() == Qt::LeftButton)
     {
-        mMouse.x = event->position().x();
-        mMouse.y = event->position().y();
-        mMouse.pressedButton = Qt::LeftButton;
+        mX = event->position().x();
+        mY = event->position().y();
+        mPressedButton = Qt::LeftButton;
     }
 
     if (event->button() == Qt::MiddleButton)
     {
-        mMouse.z = event->position().y();
-        mMouse.pressedButton = Qt::MiddleButton;
+        mZ = event->position().y();
+        mPressedButton = Qt::MiddleButton;
     }
 
     if (event->button() == Qt::RightButton)
     {
-        mMouse.w = event->position().y();
-        mMouse.pressedButton = Qt::RightButton;
+        mW = event->position().y();
+        mPressedButton = Qt::RightButton;
     }
 
     mRendererManager->mousePressed(event);
@@ -183,7 +165,7 @@ void Controller::mouseReleased(QMouseEvent *event)
     if (!mSuccess)
         return;
 
-    mMouse.pressedButton = Qt::NoButton;
+    mPressedButton = Qt::NoButton;
 
     mRendererManager->mouseReleased(event);
 }
@@ -196,30 +178,30 @@ void Controller::mouseMoved(QMouseEvent *event)
     if (mImGuiWantsMouseCapture)
         return;
 
-    if (mMouse.pressedButton == Qt::LeftButton)
+    if (mPressedButton == Qt::LeftButton)
     {
-        mMouse.dx += mMouse.x - event->position().x();
-        mMouse.dy += mMouse.y - event->position().y();
+        mDx += mX - event->position().x();
+        mDy += mY - event->position().y();
 
-        mMouse.x = event->position().x();
-        mMouse.y = event->position().y();
+        mX = event->position().x();
+        mY = event->position().y();
 
-        mUpdateCamera = true;
+        mUpdate = true;
     }
 
-    if (mMouse.pressedButton == Qt::MiddleButton)
+    if (mPressedButton == Qt::MiddleButton)
     {
-        mMouse.dz += mMouse.z - event->position().y();
-        mMouse.z = event->position().y();
+        mDz += mZ - event->position().y();
+        mZ = event->position().y();
 
-        mUpdateCamera = true;
+        mUpdate = true;
     }
 
-    if (mMouse.pressedButton == Qt::RightButton)
+    if (mPressedButton == Qt::RightButton)
     {
-        mMouse.dw += mMouse.w - event->position().y();
-        mMouse.w = event->position().y();
-        mUpdateCamera = true;
+        mDw += mW - event->position().y();
+        mW = event->position().y();
+        mUpdate = true;
     }
 
     mRendererManager->mouseMoved(event);

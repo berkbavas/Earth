@@ -1,48 +1,39 @@
 #version 330 core
 
-struct Earth {
-    mat4 transformation;
-    mat3 normalMatrix;
-    float ambient;
-    float diffuse;
-    float specular;
-    float shininess;
-    sampler2D color;
-    sampler2D height;
-};
+uniform float earthAmbient;
+uniform float earthDiffuse;
+uniform float earthSpecular;
+uniform float earthShininess;
+uniform sampler2D earthTexture;
 
-struct Sun {
-    vec4 color;
-    vec3 direction;
-    float ambient;
-    float diffuse;
-    float specular;
-};
+uniform vec4 sunColor;
+uniform vec3 sunDirection;
+uniform float sunAmbient;
+uniform float sunDiffuse;
+uniform float sunSpecular;
 
-uniform Earth earth;
 uniform vec3 cameraPosition;
-uniform Sun sun;
 
-in vec3 fsPosition;
+in vec4 fsPosition;
 in vec2 fsTextureCoords;
-smooth in vec3 fsNormal;
+in vec3 fsNormal;
 
 out vec4 outColor;
 
 void main()
 {
-    vec3 sunDir = normalize(-sun.direction);
-    vec3 viewDir = normalize(cameraPosition - fsPosition);
+    vec3 sunDir = normalize(-sunDirection);
+    vec3 viewDir = normalize(cameraPosition - fsPosition.xyz);
 
     // Ambient
-    float ambient = sun.ambient * earth.ambient;
+    float ambient = sunAmbient * earthAmbient;
 
     // Diffuse
-    float diffuse = max(dot(fsNormal, sunDir), 0.0) * sun.diffuse * earth.diffuse;
+    float diffuse = max(dot(fsNormal, sunDir), 0.0) * sunDiffuse * earthDiffuse;
 
     // Specular
     vec3 reflectDir = reflect(-sunDir, fsNormal);
-    float specular = pow(max(dot(viewDir, reflectDir), 0.0), earth.shininess) * sun.specular * earth.specular;
+    float specular = pow(max(dot(viewDir, reflectDir), 0.0), earthShininess) * sunSpecular * earthSpecular;
 
-    outColor = (ambient + diffuse + specular) * sun.color * texture(earth.color, fsTextureCoords);
+    outColor = (ambient + diffuse + specular) * sunColor * texture(earthTexture, fsTextureCoords);
 }

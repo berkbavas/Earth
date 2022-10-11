@@ -19,7 +19,6 @@ public:
     enum class NodeType { //
         DummyNode,
         Model,
-        FreeCamera,
         DummyCamera,
     };
 
@@ -39,7 +38,6 @@ public:
     void setName(const QString &newName);
 
     NodeType nodeType() const;
-    QString nodeTypeString();
 
     bool visible() const;
     void setVisible(bool newVisible);

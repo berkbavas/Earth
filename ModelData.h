@@ -14,7 +14,7 @@ public:
     ModelData();
 
     struct Vertex {
-        QVector3D position;
+        QVector4D position;
         QVector3D normal;
         QVector2D textureCoords;
     };

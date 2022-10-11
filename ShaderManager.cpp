@@ -13,40 +13,6 @@ Shader *ShaderManager::getShader(ShaderType shader)
 
 bool ShaderManager::init()
 {
-    // Model Shader
-    {
-        Shader *shader = new Shader(ShaderType::ModelShader);
-        mShaders.insert(shader->type(), shader);
-
-        shader->addPath(QOpenGLShader::Vertex, ":/Resources/Shaders/Model.vert");
-        shader->addPath(QOpenGLShader::Fragment, ":/Resources/Shaders/Model.frag");
-
-        QStringList uniforms;
-        uniforms << "sun.color"
-                 << "sun.direction"
-                 << "sun.ambient"
-                 << "sun.diffuse"
-                 << "sun.specular"
-                 << "node.transformation"
-                 << "node.normalMatrix"
-                 << "node.ambient"
-                 << "node.diffuse"
-                 << "node.specular"
-                 << "node.shininess"
-                 << "node.color"
-                 << "cameraPosition"
-                 << "VP";
-
-        shader->addUniforms(uniforms);
-
-        shader->addAttribute("position");
-        shader->addAttribute("normal");
-        shader->addAttribute("textureCoords");
-
-        if (!shader->init())
-            return false;
-    }
-
     // Earth Shader
     {
         Shader *shader = new Shader(ShaderType::EarthShader);
@@ -56,20 +22,19 @@ bool ShaderManager::init()
         shader->addPath(QOpenGLShader::Fragment, ":/Resources/Shaders/Earth.frag");
 
         QStringList uniforms;
-        uniforms << "sun.color"
-                 << "sun.direction"
-                 << "sun.ambient"
-                 << "sun.diffuse"
-                 << "sun.specular"
-                 << "earth.transformation"
-                 << "earth.normalMatrix"
-                 << "earth.ambient"
-                 << "earth.diffuse"
-                 << "earth.specular"
-                 << "earth.shininess"
-                 << "earth.color"
-                 << "earth.height"
+        uniforms << "earthAmbient"
+                 << "earthDiffuse"
+                 << "earthSpecular"
+                 << "earthShininess"
+                 << "earthTexture"
+                 << "sunColor"
+                 << "sunDirection"
+                 << "sunAmbient"
+                 << "sunDiffuse"
+                 << "sunSpecular"
                  << "cameraPosition"
+                 << "N"
+                 << "M"
                  << "VP";
 
         shader->addUniforms(uniforms);

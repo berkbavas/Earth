@@ -13,14 +13,7 @@ private:
 public:
     static Earth *instance();
 
-    QOpenGLTexture *texture() const;
-    QOpenGLTexture *heightMap() const;
-
     void drawGUI() override;
-
-private:
-    QOpenGLTexture *mTexture;
-    QOpenGLTexture *mHeightMap;
 };
 
 #endif // EARTH_H

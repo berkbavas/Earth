@@ -1,11 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>Resources/Shaders/Model.frag</file>
-        <file>Resources/Shaders/Model.vert</file>
-        <file>Resources/Shaders/Screen.frag</file>
-        <file>Resources/Shaders/Screen.vert</file>
-        <file>Resources/Shaders/ScreenMultisampled.frag</file>
-        <file>Resources/Shaders/ScreenMultisampled.vert</file>
         <file>Resources/Shaders/Earth.frag</file>
         <file>Resources/Shaders/Earth.vert</file>
         <file>Resources/Shaders/EarthMousePosition.frag</file>

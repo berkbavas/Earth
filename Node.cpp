@@ -81,23 +81,6 @@ Node::NodeType Node::nodeType() const
     return mNodeType;
 }
 
-QString Node::nodeTypeString()
-{
-    switch (mNodeType)
-    {
-    case NodeType::DummyNode:
-        return "DummyNode";
-    case NodeType::Model:
-        return "Model";
-    case NodeType::FreeCamera:
-        return "Free Camera";
-    case NodeType::DummyCamera:
-        return "Dummy Camera";
-    default:
-        return "Unknown Node";
-    }
-}
-
 void Node::drawGUI()
 {
     // Position

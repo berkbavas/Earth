@@ -181,14 +181,14 @@ ModelData *Helper::load(const QString &path)
                     if (arg.size() == 2)
                     {
                         if (arg[0].toInt() - 1 < vertices.size())
-                            vertex.position = vertices[arg[0].toInt() - 1];
+                            vertex.position = QVector4D(vertices[arg[0].toInt() - 1], 1);
 
                         if (arg[1].toInt() - 1 < normals.size())
                             vertex.normal = normals[arg[1].toInt() - 1];
                     } else if (arg.size() == 3)
                     {
                         if (arg[0].toInt() - 1 < vertices.size())
-                            vertex.position = vertices[arg[0].toInt() - 1];
+                            vertex.position = QVector4D(vertices[arg[0].toInt() - 1], 1);
 
                         if (arg[1].toInt() - 1 < textureCoords.size())
                             vertex.textureCoords = textureCoords[arg[1].toInt() - 1];

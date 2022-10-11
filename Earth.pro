@@ -24,7 +24,6 @@ HEADERS += \
     Controller.h \
     DummyCamera.h \
     Earth.h \
-    FreeCamera.h \
     Helper.h \
     Manager.h \
     Model.h \
@@ -43,7 +42,6 @@ SOURCES += \
     Controller.cpp \
     DummyCamera.cpp \
     Earth.cpp \
-    FreeCamera.cpp \
     Helper.cpp \
     Main.cpp \
     Manager.cpp \
