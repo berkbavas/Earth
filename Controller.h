@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "DummyCamera.h"
+#include "Mouse.h"
 #include "RendererManager.h"
 
 #include <QObject>
@@ -46,16 +47,8 @@ private:
 
     bool mSuccess;
 
-    Qt::MouseButton mPressedButton;
-
-    float mX;
-    float mY;
-    float mZ;
-    float mW;
-    float mDx;
-    float mDy;
-    float mDz;
-    float mDw;
+    Mouse mMouse;
+    int mZoomLevel;
 
     bool mUpdate;
     float mDistance;

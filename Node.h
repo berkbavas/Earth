@@ -39,9 +39,6 @@ public:
 
     NodeType nodeType() const;
 
-    bool visible() const;
-    void setVisible(bool newVisible);
-
     virtual void drawGUI();
 
 private:

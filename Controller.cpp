@@ -9,15 +9,7 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
     , mImGuiWantsMouseCapture(false)
     , mSuccess(true)
-    , mPressedButton(Qt::NoButton)
-    , mX(0)
-    , mY(0)
-    , mZ(0)
-    , mW(0)
-    , mDx(0)
-    , mDy(0)
-    , mDz(0)
-    , mDw(0)
+    , mZoomLevel(100)
     , mUpdate(false)
     , mDistance(40.0f)
     , mTilt(0.0f)
@@ -67,15 +59,15 @@ void Controller::render(float ifps)
         // Earth
         {
             auto rotation = mEarth->rotation();
-            rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), -mDz * ifps * qMax(2.0f, mDistance - 10)) * rotation;
-            rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), -mDx * ifps * (mDistance - 10)) * rotation;
-            rotation = QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), -mDy * ifps * (mDistance - 10)) * rotation;
+            rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, 1), -mMouse.mDz * ifps * qMax(2.0f, mDistance - 10)) * rotation;
+            rotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), -mMouse.mDx * ifps * (mDistance - 10)) * rotation;
+            rotation = QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), -mMouse.mDy * ifps * (mDistance - 10)) * rotation;
             mEarth->setRotation(rotation);
         }
 
         // Camera
         {
-            mTilt -= mDw * ifps * 30;
+            mTilt -= mMouse.mDw * ifps * 30;
 
             mTilt = qBound(0.0f, mTilt, 89.0f);
 
@@ -86,10 +78,10 @@ void Controller::render(float ifps)
             mCamera->setPosition(position);
         }
 
-        mDx = 0.0f;
-        mDy = 0.0f;
-        mDz = 0.0f;
-        mDw = 0.0f;
+        mMouse.mDx = 0.0f;
+        mMouse.mDy = 0.0f;
+        mMouse.mDz = 0.0f;
+        mMouse.mDw = 0.0f;
         mUpdate = false;
     }
 
@@ -120,10 +112,10 @@ void Controller::wheelMoved(QWheelEvent *event)
         return;
 
     if (event->angleDelta().y() < 0)
-        mDistance = 1.015 * mDistance;
+        mDistance = mDistance / 0.95;
 
     if (event->angleDelta().y() > 0)
-        mDistance = mDistance / 1.015;
+        mDistance = mDistance * 0.95;
 
     mDistance = qBound(10.0f + 2 * mCamera->zNear(), mDistance, 1000.0f);
 
@@ -140,21 +132,21 @@ void Controller::mousePressed(QMouseEvent *event)
 
     if (event->button() == Qt::LeftButton)
     {
-        mX = event->position().x();
-        mY = event->position().y();
-        mPressedButton = Qt::LeftButton;
+        mMouse.mX = event->position().x();
+        mMouse.mY = event->position().y();
+        mMouse.mPressedButton = Qt::LeftButton;
     }
 
     if (event->button() == Qt::MiddleButton)
     {
-        mZ = event->position().y();
-        mPressedButton = Qt::MiddleButton;
+        mMouse.mZ = event->position().y();
+        mMouse.mPressedButton = Qt::MiddleButton;
     }
 
     if (event->button() == Qt::RightButton)
     {
-        mW = event->position().y();
-        mPressedButton = Qt::RightButton;
+        mMouse.mW = event->position().y();
+        mMouse.mPressedButton = Qt::RightButton;
     }
 
     mRendererManager->mousePressed(event);
@@ -165,7 +157,7 @@ void Controller::mouseReleased(QMouseEvent *event)
     if (!mSuccess)
         return;
 
-    mPressedButton = Qt::NoButton;
+    mMouse.mPressedButton = Qt::NoButton;
 
     mRendererManager->mouseReleased(event);
 }
@@ -178,29 +170,29 @@ void Controller::mouseMoved(QMouseEvent *event)
     if (mImGuiWantsMouseCapture)
         return;
 
-    if (mPressedButton == Qt::LeftButton)
+    if (mMouse.mPressedButton == Qt::LeftButton)
     {
-        mDx += mX - event->position().x();
-        mDy += mY - event->position().y();
+        mMouse.mDx += mMouse.mX - event->position().x();
+        mMouse.mDy += mMouse.mY - event->position().y();
 
-        mX = event->position().x();
-        mY = event->position().y();
+        mMouse.mX = event->position().x();
+        mMouse.mY = event->position().y();
 
         mUpdate = true;
     }
 
-    if (mPressedButton == Qt::MiddleButton)
+    if (mMouse.mPressedButton == Qt::MiddleButton)
     {
-        mDz += mZ - event->position().y();
-        mZ = event->position().y();
+        mMouse.mDz += mMouse.mZ - event->position().y();
+        mMouse.mZ = event->position().y();
 
         mUpdate = true;
     }
 
-    if (mPressedButton == Qt::RightButton)
+    if (mMouse.mPressedButton == Qt::RightButton)
     {
-        mDw += mW - event->position().y();
-        mW = event->position().y();
+        mMouse.mDw += mMouse.mW - event->position().y();
+        mMouse.mW = event->position().y();
         mUpdate = true;
     }
 

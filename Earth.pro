@@ -28,6 +28,7 @@ HEADERS += \
     Manager.h \
     Model.h \
     ModelData.h \
+    Mouse.h \
     Node.h \
     PerspectiveCamera.h \
     Quad.h \
@@ -47,6 +48,7 @@ SOURCES += \
     Manager.cpp \
     Model.cpp \
     ModelData.cpp \
+    Mouse.cpp \
     Node.cpp \
     PerspectiveCamera.cpp \
     Quad.cpp \
