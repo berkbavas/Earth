@@ -85,16 +85,17 @@ void Earth::Controller::Render(float ifps)
         mUpdate = false;
     }
 
+    mSun->SetDirection(mCamera->GetViewDirection());
+
     // Render
     {
         mMousePositionFBO->bind();
-        glEnable(GL_DEPTH_TEST);
         glClearColor(0, 0, 0, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         mShaderManager->Bind(ShaderManager::ShaderType::EarthMousePositionShader);
         mShaderManager->SetUniformValue("MVP", mCamera->GetViewProjectionMatrix() * mEarth->Transformation());
-        if(auto earth = mModelsData.value("Earth", nullptr))
-            earth->Render();
+        if (mModelsData.contains("Earth"))
+            mModelsData.value("Earth")->Render();
         mShaderManager->Release();
 
         QOpenGLFramebufferObject::bindDefault();
@@ -104,12 +105,10 @@ void Earth::Controller::Render(float ifps)
         mShaderManager->SetUniformValue("M", mEarth->Transformation());
         mShaderManager->SetUniformValue("N", mEarth->Transformation().normalMatrix());
         mShaderManager->SetUniformValue("VP", mCamera->GetViewProjectionMatrix());
-
         mShaderManager->SetUniformValue("earthAmbient", mEarth->GetAmbient());
         mShaderManager->SetUniformValue("earthDiffuse", mEarth->GetDiffuse());
         mShaderManager->SetUniformValue("earthSpecular", mEarth->GetSpecular());
         mShaderManager->SetUniformValue("earthShininess", mEarth->GetShininess());
-
         mShaderManager->SetUniformValue("cameraPosition", mCamera->Position());
         mShaderManager->SetUniformValue("sunDirection", mSun->GetDirection());
         mShaderManager->SetUniformValue("sunColor", mSun->GetColor());
@@ -118,15 +117,13 @@ void Earth::Controller::Render(float ifps)
         mShaderManager->SetUniformValue("sunSpecular", mSun->GetSpecular());
         mEarthTexture->bind(0);
         mShaderManager->SetSampler("earthTexture", 0, mEarthTexture->textureId());
-        if (auto earth = mModelsData.value("Earth", nullptr))
-            earth->Render();
+        if (mModelsData.contains("Earth"))
+            mModelsData.value("Earth")->Render();
         mShaderManager->Release();
     }
 
     QtImGui::newFrame();
-
     glViewport(0, 0, mWindow->width(), mWindow->height());
-
     ImGui::SetNextWindowSize(ImVec2(420, 820), ImGuiCond_FirstUseEver);
     ImGui::Begin("Debug");
     ImGui::TextColored(ImVec4(1, 1, 0, 1), "Latitude: %.6f, Longitude: %.6f)", mMouseWorldPosition[0], mMouseWorldPosition[1]);
