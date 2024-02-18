@@ -14,5 +14,5 @@
 10) Build & Run with `Release` config.
 
 ## Screenshots
-![](Screenshots/Screenshot_1.png)
-![](Screenshots/Screenshot_2.png)
+![Screenshot_1](https://github.com/berkbavas/Earth/assets/53399385/a97182b3-c935-4175-9005-8ba352a107e6)
+![Screenshot_2](https://github.com/berkbavas/Earth/assets/53399385/c870a3db-ff94-421e-9324-4fdcdf7d29ed)
