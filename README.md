@@ -10,7 +10,7 @@
 6) Create a folder `mkdir Build`.
 7) Enter the folder `cd Build`.
 8) Run CMake `cmake ..`.
-9) Open `Earth.sln` with `Visual Studio 2019`.
+9) Open `Earth.sln` with `Visual Studio 2022`.
 10) Build & Run with `Release` config.
 
 ## Screenshots
