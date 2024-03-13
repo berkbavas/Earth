@@ -1,5 +1,5 @@
 # Earth3DOpenGL
-3D earth rendering using `OpenGL` and `Qt`.
+Earth planet 3D rendering using `OpenGL` and `Qt`.
 
 ## Build
 1) Install `CMake 3.25.1` or above.
